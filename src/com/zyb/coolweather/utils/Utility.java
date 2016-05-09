@@ -1,5 +1,16 @@
 package com.zyb.coolweather.utils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.zyb.coolweather.db.CoolWeatherDB;
@@ -83,6 +94,54 @@ public class Utility {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * 解析服务器返回的JSON数据，并存储至本地
+	 * @param context
+	 * @param response
+	 */
+	public static void handleWeatherResponse(Context context,String response){
+		try {
+			JSONObject object = new JSONObject(response);
+			JSONObject weatherinfo = object.getJSONObject("weatherinfo");
+			String cityName = weatherinfo.getString("city");
+			String weathercode = weatherinfo.getString("cityid");
+			String temp1 = weatherinfo.getString("temp1");
+			String temp2 = weatherinfo.getString("temp2");
+			String weatherdesp = weatherinfo.getString("weather");
+			String publishTime = weatherinfo.getString("ptime");
+			saveWeatherInfo(context,cityName,weathercode,temp1,temp2,weatherdesp,publishTime);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 将解析出来的信息保存至sharedpreferences中
+	 * @param context
+	 * @param cityName
+	 * @param weathercode
+	 * @param temp1
+	 * @param temp2
+	 * @param weatherdesp
+	 * @param publishTime
+	 */
+	private static void saveWeatherInfo(Context context, String cityName,
+			String weathercode, String temp1, String temp2, String weatherdesp,
+			String publishTime) {
+		SimpleDateFormat date = new SimpleDateFormat("yyyy年M月d日",Locale.CHINA);
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		editor.putBoolean("city_selected", true);
+		editor.putString("city_name",cityName);
+		editor.putString("weather_code", weathercode);
+		editor.putString("temp1",temp1);
+		editor.putString("temp2",temp2);
+		editor.putString("publish_time",publishTime);
+		editor.putString("weather_desp",weatherdesp);
+		editor.putString("current_date",date.format(new Date()));
+		editor.commit();
 	}
 	
 }

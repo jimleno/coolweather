@@ -4,8 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zyb.coolweather.R;
+import com.zyb.coolweather.activity.WeatherActivity;
 import com.zyb.coolweather.db.CoolWeatherDB;
 import com.zyb.coolweather.model.City;
 import com.zyb.coolweather.model.County;
@@ -55,6 +62,15 @@ public class ChooseAreaAcitvity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		/**
+		SharedPreferences pfs = PreferenceManager.getDefaultSharedPreferences(this);
+		if(pfs.getBoolean("city_selected", false)){
+			Intent intent = new Intent(this,WeatherActivity.class);
+			startActivity(intent);
+			finish();
+			return;
+		}
+		**/
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.choose_area);
 		initview();
@@ -74,6 +90,13 @@ public class ChooseAreaAcitvity extends Activity {
 					case LEVEL_CITY:
 						selectcity = citylist.get(index);
 						queryCounties();
+						break;
+					case LEVEL_COUNTY:
+						String countyCode = countylist.get(index).getCountyCode();
+						Intent intent = new Intent(ChooseAreaAcitvity.this,WeatherActivity.class);
+						intent.putExtra("county_code", countyCode);
+						startActivity(intent);
+						//finish();
 						break;
 				}
 				
@@ -159,7 +182,7 @@ public class ChooseAreaAcitvity extends Activity {
 				}
 				
 			}
-	
+			
 
 	private void initview() {
 		textview = (TextView) this.findViewById(R.id.text_title);
@@ -238,7 +261,9 @@ public class ChooseAreaAcitvity extends Activity {
 		});
 				}
 
-
+/**
+ * 判断BACK键是回到省列表，市列表，还是直接退出
+ */
 	@Override
 	public void onBackPressed() {
 		if(currentLevel == LEVEL_COUNTY){
@@ -246,7 +271,26 @@ public class ChooseAreaAcitvity extends Activity {
 		}else if(currentLevel == LEVEL_CITY){
 			queryProvinces();
 		}else{
-			finish();
+			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+			dialog.setTitle("退出");
+			dialog.setMessage("确定退出该应用?");
+			dialog.setPositiveButton("确定", new OnClickListener(){
+
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					finish();
+				}
+			});
+			dialog.setNegativeButton("取消",new OnClickListener(){
+
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+			});
+		dialog.show();
 		}
 	}
 	
