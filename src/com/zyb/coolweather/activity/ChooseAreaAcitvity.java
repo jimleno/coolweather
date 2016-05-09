@@ -76,12 +76,51 @@ public class ChooseAreaAcitvity extends Activity {
 						break;
 				}
 				queryProvinces();//加载省级数据
+			}	
+				});
+				
 			}
+
+
+			protected void queryCounties() {
+				countylist = db.loadCounty(selectcity.getId());
+				if(countylist != null){
+					datalist.clear();
+					for(County county :countylist){
+						datalist.add(county.getCountyName());
+					}
+					adapter.notifyDataSetChanged();
+					listview.setSelection(0);
+					textview.setText(selectcity.getCityName());
+					currentLevel = LEVEL_COUNTY;
+				}else{
+					queryFromServer(selectcity.getCityCode(),"county");
+				}
+		
+	}
+
+
+			protected void queryCities() {
+				citylist = db.loadCitys(selectprovince.getId());
+				if(citylist != null){
+					datalist.clear();
+					for(City city : citylist){
+						datalist.add(city.getCityName());
+					}
+					adapter.notifyDataSetChanged();
+					listview.setSelection(0);
+					textview.setText(selectprovince.getProvinceName());
+					currentLevel = LEVEL_CITY;
+				}else{
+					queryFromServer(selectprovince.getProvinceCode(),"city");
+				}
+		
+	}
 
 			/**
 			 * 查询全国的省，如果数据库没有就去服务器查询
 			 */
-			private void queryProvinces() {
+			protected void queryProvinces() {
 				provincelist = db.loadProvinces();
 				if(provincelist != null){
 					datalist.clear();
@@ -95,29 +134,8 @@ public class ChooseAreaAcitvity extends Activity {
 				}else{
 					queryFromServer(null,"province");
 				}
-				
-			}
+	}
 
-			
-
-					@Override
-					public void onError(Exception error) {
-						// TODO Auto-generated method stub
-					runOnUiThread(new Runnable(){
-
-						@Override
-						public void run() {
-							// TODO Auto-generated method stub
-							closeProgressDialog();
-							Toast.makeText(ChooseAreaAcitvity.this,"加载失败",Toast.LENGTH_LONG).show();
-						}
-						
-					});
-					}
-					
-				});
-				
-			}
 
 			private void showProgressDialog() {
 				// TODO Auto-generated method stub
@@ -135,31 +153,7 @@ public class ChooseAreaAcitvity extends Activity {
 				}
 				
 			}
-			
-
-
-			private void queryCounties() {
-				countylist = db.loadCounty(selectcity.getId());
-				if(countylist != null){
-					datalist.clear();
-					for(County county :countylist){
-						datalist.add(county.getCountyName());
-					}
-					adapter.notifyDataSetChanged();
-					listview.setSelection(0);
-					textview.setText(selectcity.getCityName());
-					currentLevel = LEVEL_COUNTY;
-				}else{
-					queryFromServer(selectcity.getCityCode(),"county");
-				}
-				
-			}
-
-			
-
-			
 	
-	}
 
 	private void initview() {
 		textview = (TextView) this.findViewById(R.id.text_title);
@@ -167,21 +161,7 @@ public class ChooseAreaAcitvity extends Activity {
 		
 	}
 
-	private void queryCities() {
-		citylist = db.loadCitys(selectprovince.getId());
-		if(citylist != null){
-			datalist.clear();
-			for(City city : citylist){
-				datalist.add(city.getCityName());
-			}
-			adapter.notifyDataSetChanged();
-			listview.setSelection(0);
-			textview.setText(selectprovince.getProvinceName());
-			currentLevel = LEVEL_CITY;
-		}else{
-			queryFromServer(selectprovince.getProvinceCode(),"city");
-		}
-	}
+	
 	
 	
 	private void queryFromServer(final String code,final String type) {
@@ -195,6 +175,24 @@ public class ChooseAreaAcitvity extends Activity {
 		showProgressDialog();
 		HttpUtils.sendHttpResponse(address, new HttpCallBackListener(){
 
+
+
+			@Override
+			public void onError(Exception error) {
+				// TODO Auto-generated method stub
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					closeProgressDialog();
+					Toast.makeText(ChooseAreaAcitvity.this,"加载失败",Toast.LENGTH_LONG).show();
+				}
+				
+			});
+			}
+			
+			
 			@Override
 			public void onFinish(String response) {
 				boolean result = false;
@@ -230,13 +228,22 @@ public class ChooseAreaAcitvity extends Activity {
 				}
 				
 				
-			}	});
-	
+			}
+		//
+		});
+				}
+
+
 	@Override
 	public void onBackPressed() {
 		if(currentLevel == LEVEL_COUNTY){
 			queryCities();
+		}else if(currentLevel == LEVEL_CITY){
+			queryProvinces();
+		}else{
+			finish();
 		}
 	}
-
-}
+	
+	
+		}
