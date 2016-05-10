@@ -10,11 +10,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zyb.coolweather.ChooseAreaAcitvity;
 import com.zyb.coolweather.R;
+import com.zyb.coolweather.service.AutoUpdateService;
 import com.zyb.coolweather.utils.HttpCallBackListener;
 import com.zyb.coolweather.utils.HttpUtils;
 import com.zyb.coolweather.utils.Utility;
@@ -39,6 +41,17 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	private Button switchcity;
 	//刷新天气信息
 	private Button refreshweather;
+	//天气图标
+	private ImageView img;
+	
+	private String sunny = "晴";
+	private String overcast = "阴";
+	private String cloudy = "多云";
+	private String rain = "雨";
+	private String snow = "雪";
+	private String fog = "霾";
+	
+	
 	
 	
 	@Override
@@ -60,6 +73,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		currentDateText = (TextView) this.findViewById(R.id.current_date);
 		switchcity = (Button) this.findViewById(R.id.swich_city);
 		refreshweather = (Button) this.findViewById(R.id.refresh_info);
+		img = (ImageView) this.findViewById(R.id.show_weather);
 		
 		String countyCode = getIntent().getStringExtra("county_code");
 		//有县级信息就查询
@@ -83,13 +97,38 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	private void showWeather() {
 		SharedPreferences pfs = PreferenceManager.getDefaultSharedPreferences(this);
 		cityNameText.setText(pfs.getString("city_name",""));
-		temp1Text.setText(pfs.getString("temp1",""));
-		temp2Text.setText(pfs.getString("temp2",""));
+		temp1Text.setText(pfs.getString("temp1","").trim());
+		temp2Text.setText(pfs.getString("temp2","").trim());
 		weatherDespText.setText(pfs.getString("weather_desp", ""));
 		publishText.setText("今天"+pfs.getString("publish_time", "")+"发布");
 		currentDateText.setText(pfs.getString("current_date",""));
 		weatherLayoutInfo.setVisibility(View.VISIBLE);
 		cityNameText.setVisibility(View.VISIBLE);
+		showImgView(pfs.getString("weather_desp",""));
+		Intent in = new Intent(this,AutoUpdateService.class);
+		startService(in);
+	}
+
+	private void showImgView(String info) {
+		if(info.endsWith(sunny)){
+			img.setImageResource(R.drawable.sunny);
+			return;
+		}else if(info.endsWith(cloudy)){
+			img.setImageResource(R.drawable.cloudy);
+			return;
+		}else if(info.endsWith(overcast)){
+			img.setImageResource(R.drawable.overcast);
+			return;
+		}else if(info.endsWith(fog)){
+			img.setImageResource(R.drawable.fog);
+			return;
+		}else if(info.endsWith(rain)){
+			img.setImageResource(R.drawable.rain);
+			return;
+		}else if(info.endsWith(snow)){
+			img.setImageResource(R.drawable.snow);
+			return;
+		}
 		
 	}
 
@@ -171,6 +210,8 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		}
 
 	}
+	
+     
 
 	private void queryWeatherInfo(String weatherCode) {
 		String address = "http://www.weather.com.cn/data/cityinfo/"+weatherCode+".html";
