@@ -13,8 +13,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.zyb.coolweather.ChooseAreaAcitvity;
+import com.zyb.coolweather.activity.ChooseAreaActivity;
 import com.zyb.coolweather.R;
 import com.zyb.coolweather.service.AutoUpdateService;
 import com.zyb.coolweather.utils.HttpCallBackListener;
@@ -24,6 +25,7 @@ import com.zyb.coolweather.utils.Utility;
 public class WeatherActivity extends Activity implements OnClickListener {
 
 	private LinearLayout weatherLayoutInfo;
+	
 	
 	//城市名称
 	private TextView cityNameText;
@@ -60,6 +62,8 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.weather_layout);
+		
+		
 		initView();
 	}
 
@@ -144,7 +148,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	 * @param countyCode
 	 */
 	private void queryFromService(String address, final String type) {
-		HttpUtils.sendHttpResponse(address, new HttpCallBackListener(){
+		HttpUtils.sendHttpResponse(WeatherActivity.this,address, new HttpCallBackListener(){
 
 			@Override
 			public void onFinish(String response) {
@@ -179,6 +183,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 					@Override
 					public void run() {
 						publishText.setText("同步失败...");
+						Toast.makeText(WeatherActivity.this,"网络连接失败,请检查网络",Toast.LENGTH_LONG).show();
 					}
 					
 				});
@@ -192,7 +197,11 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		switch(v.getId()){
 		case R.id.swich_city:
-			Intent intent = new Intent(this,ChooseAreaAcitvity.class);
+			SharedPreferences share = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor edit = share.edit();
+            edit.clear();//清空sharedpreferences文件里的内容
+            edit.commit();//清空完必须要提交一下，不然不会生效
+			Intent intent = new Intent(this,ChooseAreaActivity.class);
 			intent.putExtra("from_weather_activity", true);
 			startActivity(intent);
 			finish();

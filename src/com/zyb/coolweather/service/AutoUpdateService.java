@@ -18,6 +18,8 @@ import com.zyb.coolweather.utils.Utility;
 
 public class AutoUpdateService extends Service {
 
+	
+	
 	@Override
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub
@@ -42,7 +44,7 @@ public class AutoUpdateService extends Service {
 				SharedPreferences pfs = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this);
 				String weatherCode = pfs.getString("weather_code","");
 				String address = "http://www.weather.com.cn/data/cityinfo/"+weatherCode+".html";
-				HttpUtils.sendHttpResponse(address, new HttpCallBackListener(){
+				HttpUtils.sendHttpResponse(AutoUpdateService.this,address, new HttpCallBackListener(){
 
 					@Override
 					public void onFinish(String response) {

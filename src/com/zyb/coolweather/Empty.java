@@ -1,5 +1,5 @@
 package com.zyb.coolweather;
 
-public class EmptyClass {
+public class Empty {
 
 }

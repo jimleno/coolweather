@@ -1,4 +1,4 @@
-package com.zyb.coolweather;
+package com.zyb.coolweather.activity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -34,7 +35,7 @@ import com.zyb.coolweather.utils.HttpCallBackListener;
 import com.zyb.coolweather.utils.HttpUtils;
 import com.zyb.coolweather.utils.Utility;
 
-public class ChooseAreaAcitvity extends Activity {
+public class ChooseAreaActivity extends Activity {
 
 	public static final int LEVEL_PROVINCE = 0;
 	public static final int LEVEL_CITY = 1;
@@ -55,22 +56,27 @@ public class ChooseAreaAcitvity extends Activity {
 	
 	private Province selectprovince;
 	private City selectcity;
-	private County selectcounty;
+
 	private int currentLevel;
+	
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		/**
+		
 		SharedPreferences pfs = PreferenceManager.getDefaultSharedPreferences(this);
-		if(pfs.getBoolean("city_selected", false)){
+		String weather_desp = pfs.getString("weather_desp","");
+		
+		
+		if(weather_desp != null && weather_desp.length() > 0 ){
 			Intent intent = new Intent(this,WeatherActivity.class);
 			startActivity(intent);
 			finish();
 			return;
-		}
-		**/
+		     }
+		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.choose_area);
 		initview();
@@ -93,10 +99,10 @@ public class ChooseAreaAcitvity extends Activity {
 						break;
 					case LEVEL_COUNTY:
 						String countyCode = countylist.get(index).getCountyCode();
-						Intent intent = new Intent(ChooseAreaAcitvity.this,WeatherActivity.class);
+						Intent intent = new Intent(ChooseAreaActivity.this,WeatherActivity.class);
 						intent.putExtra("county_code", countyCode);
 						startActivity(intent);
-						//finish();
+						finish();
 						break;
 				}
 				
@@ -154,14 +160,14 @@ public class ChooseAreaAcitvity extends Activity {
 					for(Province province : provincelist){
 						datalist.add(province.getProvinceName());
 					}
-					Log.i("Tag","2222222");
+					
 					listview.setSelection(0);
 					textview.setText("中国");
 					adapter.notifyDataSetChanged();
 					currentLevel = LEVEL_PROVINCE;
 				}else{
 					queryFromServer(null,"province");
-					Log.i("Tag", "111111111");
+					
 				}
 	}
 
@@ -169,7 +175,7 @@ public class ChooseAreaAcitvity extends Activity {
 			private void showProgressDialog() {
 				// TODO Auto-generated method stub
 				if(mdialog == null){
-					mdialog = new ProgressDialog(ChooseAreaAcitvity.this);
+					mdialog = new ProgressDialog(ChooseAreaActivity.this);
 					mdialog.setMessage("正在加载...");
 					mdialog.setCanceledOnTouchOutside(false);
 				}
@@ -202,7 +208,7 @@ public class ChooseAreaAcitvity extends Activity {
 			
 		}
 		showProgressDialog();
-		HttpUtils.sendHttpResponse(address, new HttpCallBackListener(){
+		HttpUtils.sendHttpResponse(ChooseAreaActivity.this,address, new HttpCallBackListener(){
 
 
 
@@ -215,7 +221,7 @@ public class ChooseAreaAcitvity extends Activity {
 				public void run() {
 					// TODO Auto-generated method stub
 					closeProgressDialog();
-					Toast.makeText(ChooseAreaAcitvity.this,"加载失败",Toast.LENGTH_LONG).show();
+					Toast.makeText(ChooseAreaActivity.this,"加载失败",Toast.LENGTH_LONG).show();
 				}
 				
 			});
