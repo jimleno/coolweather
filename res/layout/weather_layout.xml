@@ -40,6 +40,16 @@
        android:layout_weight="1"
        android:background="#27A5F9"
        >
+       <ImageButton 
+           android:id="@+id/onekey_share"
+           android:clickable="true"
+           android:layout_width="50dp"
+           android:layout_height="50dp"
+           android:layout_alignParentLeft="true"
+           android:layout_marginLeft="10dp"
+           android:layout_marginTop="10dp"
+           android:src="@drawable/onekey_share"
+           />
        <TextView 
            android:id="@+id/publish_text"
            android:layout_width="wrap_content"
